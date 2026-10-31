@@ -1,6 +1,6 @@
-# Contexto de implementação — Futbola
+# Contexto de implementação — Patota
 
-Atualizado em 10/09/2026.
+Atualizado em 31/10/2026.
 
 ## Objetivo
 
@@ -54,19 +54,27 @@ e de todas as presenças.
 
 ## Regras pendentes de implementar
 
-- Cadastro e manutenção de patotas, jogadores e vínculos de mensalistas.
+- Expor cadastro e manutenção de patotas, jogadores e mensalistas por controllers e DTOs de resposta.
 - Confirmação/recusa de presença e inclusão de convidados.
 - Criação de times e escalações: somente presenças confirmadas, pertencentes à mesma
   partida, podem ser escaladas uma única vez.
 - Atualização de placar e estatísticas; futuramente, avaliar uma entidade de eventos da
   partida para registrar cada gol e assistência individualmente.
-- DTOs de resposta, controllers, tratamento padronizado de exceções e testes.
+- DTOs de resposta, controllers, tratamento padronizado de exceções e testes das
+  demais regras de negócio.
+
+## Cadastro implementado
+
+`PatotaService` e `JogadorService` criam, atualizam e ativam/desativam registros.
+`PatotaJogadorService` adiciona, remove e reativa mensalistas. O vínculo é único
+por patota e jogador. Jogadores inativos não entram na convocação de novas partidas.
+Essas operações ainda não estão expostas por HTTP.
 
 ## Banco local
 
 O MySQL compartilhado de desenvolvimento não fica neste repositório. O compose está em
 `/projetos/docker-compose.mysql.yml` e sobe o container `mysql-dev` (MySQL 9), exposto
-em `localhost:3306`, com o banco inicial `futbola` e volume `mysql-dev-data`.
+em `localhost:3306`, com o banco originalmente chamado `futbola` e volume `mysql-dev-data`.
 
 Para subir:
 
@@ -77,7 +85,11 @@ docker compose -f /projetos/docker-compose.mysql.yml up -d
 `application.properties` aceita `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`; os padrões
 locais são `jdbc:mysql://localhost:3306/futbola`, `root` e `root`.
 
+O nome da aplicação passou a ser `patota`, mas o banco padrão conserva o nome anterior
+para preservar os dados existentes. Se o banco for renomeado no MySQL compartilhado,
+atualize `DB_URL`; este repositório não altera o compose externo nem migra dados.
+
 ## Verificação
 
-Este ambiente não tem Maven nem Maven Wrapper. A compilação e os testes ainda devem ser
-executados em um ambiente com Maven disponível.
+Execute `mvn test` em um ambiente com Maven. Os testes usam H2 em memória e não
+exigem MySQL.
