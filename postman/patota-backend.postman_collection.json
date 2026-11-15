@@ -1,0 +1,911 @@
+{
+  "info": {
+    "name": "Patota Backend - API local",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Execute as pastas 01 a 04 em ordem. A primeira requisição cria emails únicos para a execução; as respostas guardam os IDs nas variáveis da collection. A pasta 05 contém operações alternativas ou que alteram o estado final do exemplo. A API usa HTTP Basic: o cadastro de jogadores é público, os demais endpoints exigem credenciais."
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{gerenteEmail}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{gerenteSenha}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "gerenteEmail",
+      "value": ""
+    },
+    {
+      "key": "gerenteSenha",
+      "value": "Senha1234",
+      "type": "string"
+    },
+    {
+      "key": "goleiroEmail",
+      "value": ""
+    },
+    {
+      "key": "goleiroSenha",
+      "value": "Senha1234",
+      "type": "string"
+    },
+    {
+      "key": "linhaEmail",
+      "value": ""
+    },
+    {
+      "key": "linhaSenha",
+      "value": "Senha1234",
+      "type": "string"
+    },
+    {
+      "key": "gerenteId",
+      "value": ""
+    },
+    {
+      "key": "goleiroId",
+      "value": ""
+    },
+    {
+      "key": "linhaId",
+      "value": ""
+    },
+    {
+      "key": "patotaId",
+      "value": ""
+    },
+    {
+      "key": "partidaId",
+      "value": ""
+    },
+    {
+      "key": "participanteGerenteId",
+      "value": ""
+    },
+    {
+      "key": "participanteGoleiroId",
+      "value": ""
+    },
+    {
+      "key": "participanteLinhaId",
+      "value": ""
+    },
+    {
+      "key": "convidadoId",
+      "value": ""
+    },
+    {
+      "key": "timeAzulId",
+      "value": ""
+    },
+    {
+      "key": "timeVermelhoId",
+      "value": ""
+    },
+    {
+      "key": "dataHoraPartida",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Cadastrar jogadores",
+      "item": [
+        {
+          "name": "Criar gerente goleiro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogadores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Gerente Demo\",\"email\":\"{{gerenteEmail}}\",\"senha\":\"{{gerenteSenha}}\",\"nota\":4,\"tipo\":\"GOLEIRO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const runId = String(Date.now());",
+                  "pm.collectionVariables.set(\"runId\", runId);",
+                  "pm.collectionVariables.set(\"gerenteEmail\", `gerente.${runId}@example.com`);",
+                  "pm.collectionVariables.set(\"goleiroEmail\", `goleiro.${runId}@example.com`);",
+                  "pm.collectionVariables.set(\"linhaEmail\", `linha.${runId}@example.com`);",
+                  "for (const key of [\"gerenteId\", \"goleiroId\", \"linhaId\", \"patotaId\", \"partidaId\", \"participanteGerenteId\", \"participanteGoleiroId\", \"participanteLinhaId\", \"convidadoId\", \"timeAzulId\", \"timeVermelhoId\"]) pm.collectionVariables.unset(key);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"gerenteId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar mensalista goleiro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogadores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Goleiro Demo\",\"email\":\"{{goleiroEmail}}\",\"senha\":\"{{goleiroSenha}}\",\"nota\":3,\"tipo\":\"GOLEIRO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"goleiroId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar mensalista de linha",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogadores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Linha Demo\",\"email\":\"{{linhaEmail}}\",\"senha\":\"{{linhaSenha}}\",\"nota\":5,\"tipo\":\"LINHA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"linhaId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar jogadores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogadores"
+          }
+        },
+        {
+          "name": "Buscar gerente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogadores/{{gerenteId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Criar patota",
+      "item": [
+        {
+          "name": "Criar patota com limite 12",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/patotas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Patota Postman {{runId}}\",\"local\":\"Quadra Demo\",\"descricao\":\"Teste da collection\",\"maximoJogadoresPorPartida\":12}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"patotaId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adicionar goleiro à patota",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/mensalistas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogadorId\":{{goleiroId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Adicionar jogador de linha à patota",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/mensalistas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jogadorId\":{{linhaId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar mensalistas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/mensalistas"
+          }
+        },
+        {
+          "name": "Buscar patota",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}"
+          }
+        },
+        {
+          "name": "Listar patotas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/patotas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Convocar e confirmar",
+      "item": [
+        {
+          "name": "Criar partida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"patotaId\":{{patotaId}},\"dataHora\":\"{{dataHoraPartida}}\",\"observacoes\":\"Partida de teste\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"dataHoraPartida\", new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"partidaId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar participantes e guardar IDs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const dados = pm.response.json();",
+                  "  for (const participante of dados.mensalistas) {",
+                  "    if (String(participante.jogadorId) === String(pm.collectionVariables.get(\"gerenteId\"))) pm.collectionVariables.set(\"participanteGerenteId\", String(participante.id));",
+                  "    if (String(participante.jogadorId) === String(pm.collectionVariables.get(\"goleiroId\"))) pm.collectionVariables.set(\"participanteGoleiroId\", String(participante.id));",
+                  "    if (String(participante.jogadorId) === String(pm.collectionVariables.get(\"linhaId\"))) pm.collectionVariables.set(\"participanteLinhaId\", String(participante.id));",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirmar gerente goleiro",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/mensalistas/{{participanteGerenteId}}/confirmar"
+          }
+        },
+        {
+          "name": "Confirmar mensalista goleiro",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/mensalistas/{{participanteGoleiroId}}/confirmar",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{goleiroEmail}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{goleiroSenha}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirmar mensalista de linha",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/mensalistas/{{participanteLinhaId}}/confirmar",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{linhaEmail}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{linhaSenha}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Convidar jogador de linha",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/convidados",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Convidado Demo\",\"nota\":2,\"tipo\":\"LINHA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"convidadoId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aprovar convidado",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/convidados/{{convidadoId}}/aprovar"
+          }
+        },
+        {
+          "name": "Consultar participantes confirmados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes"
+          }
+        },
+        {
+          "name": "Buscar partida",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}"
+          }
+        },
+        {
+          "name": "Listar partidas da patota",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas?patotaId={{patotaId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Montar times",
+      "item": [
+        {
+          "name": "Criar time Azul",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/times",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Azul\",\"cor\":\"Azul\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"timeAzulId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar time Vermelho",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/times",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Vermelho\",\"cor\":\"Vermelho\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set(\"timeVermelhoId\", String(pm.response.json().id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Balancear times por nota e goleiro",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/times/balancear",
+            "description": "Exige exatamente um goleiro confirmado por time. Execute antes de registrar gols ou assistências."
+          }
+        },
+        {
+          "name": "Listar times com participantes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/times"
+          }
+        },
+        {
+          "name": "Registrar gols do convidado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes/CONVIDADO/{{convidadoId}}/estatisticas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gols\":2,\"assistencias\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Consultar times após estatísticas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/times"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Operações opcionais",
+      "description": "Estas chamadas são alternativas ou mudam o estado criado no fluxo principal. Execute individualmente.",
+      "item": [
+        {
+          "name": "Atualizar próprio jogador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/jogadores/{{gerenteId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Gerente Demo\",\"email\":\"{{gerenteEmail}}\",\"nota\":5,\"tipo\":\"GOLEIRO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Desativar próprio jogador",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogadores/{{gerenteId}}/desativar"
+          }
+        },
+        {
+          "name": "Ativar próprio jogador",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/jogadores/{{gerenteId}}/ativar"
+          }
+        },
+        {
+          "name": "Atualizar patota e limite futuro",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\":\"Patota Postman {{runId}}\",\"local\":\"Quadra Demo\",\"descricao\":\"Atualizada\",\"maximoJogadoresPorPartida\":14}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Desativar patota",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/desativar"
+          }
+        },
+        {
+          "name": "Ativar patota",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/ativar"
+          }
+        },
+        {
+          "name": "Promover mensalista a gerente",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/mensalistas/{{goleiroId}}/cargo",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"cargo\":\"GERENTE\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Remover mensalista da patota",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/patotas/{{patotaId}}/mensalistas/{{linhaId}}"
+          }
+        },
+        {
+          "name": "Buscar convidado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/convidados/{{convidadoId}}"
+          }
+        },
+        {
+          "name": "Recusar convidado pendente",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/convidados/{{convidadoId}}/recusar",
+            "description": "Use em outro convidado ainda PENDENTE; o convidado do fluxo principal já foi aprovado."
+          }
+        },
+        {
+          "name": "Recusar convocação pendente",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/mensalistas/{{participanteLinhaId}}/recusar",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{linhaEmail}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{linhaSenha}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Use em uma convocação ainda PENDENTE; a do fluxo principal já foi confirmada."
+          }
+        },
+        {
+          "name": "Atribuir convidado ao time Azul",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes/CONVIDADO/{{convidadoId}}/time",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"timeId\":{{timeAzulId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Atribuir mensalista ao time Vermelho",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes/MENSALISTA/{{participanteLinhaId}}/time",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"timeId\":{{timeVermelhoId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Remover convidado do time",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes/CONVIDADO/{{convidadoId}}/time"
+          }
+        },
+        {
+          "name": "Registrar gols do mensalista",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/partidas/{{partidaId}}/participantes/MENSALISTA/{{participanteLinhaId}}/estatisticas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gols\":1,\"assistencias\":0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

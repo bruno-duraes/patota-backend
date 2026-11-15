@@ -28,6 +28,9 @@ docker compose -f compose.mysql.yml --profile api up -d
 ```
 
 Para acompanhar a inicialização, use `docker compose -f compose.mysql.yml logs -f api`.
+Para explorar os endpoints no Postman, importe a
+[collection da API](postman/patota-backend.postman_collection.json) e siga o
+[roteiro](postman/README.md).
 
 ## API REST
 
@@ -53,13 +56,18 @@ armazenadas como hash BCrypt. Use HTTPS antes de expor a API fora do computador;
 | Consultar convidado | `GET /api/partidas/{id}/convidados/{convidadoId}` |
 | Aprovar/recusar convidado | `PATCH /api/partidas/{id}/convidados/{convidadoId}/aprovar` ou `/recusar` |
 | Listar participantes | `GET /api/partidas/{id}/participantes` |
+| Confirmar/recusar convocação | `PATCH /api/partidas/{id}/mensalistas/{participanteId}/confirmar` ou `/recusar` |
+| Criar/listar times | `POST` / `GET /api/partidas/{id}/times` |
+| Balancear times | `POST /api/partidas/{id}/times/balancear` |
+| Atribuir/remover participante do time | `PATCH` / `DELETE /api/partidas/{id}/participantes/{tipo}/{participanteId}/time` |
+| Registrar estatísticas | `PATCH /api/partidas/{id}/participantes/{tipo}/{participanteId}/estatisticas` |
 
 Exemplos de corpos para `POST /api/jogadores`, `POST /api/patotas`,
 `POST /api/patotas/1/mensalistas` e `POST /api/partidas`, nessa ordem:
 
 ```text
-{"nome":"Ana","email":"ana@example.com","senha":"Senha1234"}
-{"nome":"Amigos","descricao":"Jogo de quinta","local":"Quadra A"}
+{"nome":"Ana","email":"ana@example.com","senha":"Senha1234","nota":4,"tipo":"LINHA"}
+{"nome":"Amigos","descricao":"Jogo de quinta","local":"Quadra A","maximoJogadoresPorPartida":12}
 {"jogadorId":2}
 {"patotaId":1,"dataHora":"2026-11-20T20:00:00","observacoes":"Levar coletes"}
 ```
@@ -78,7 +86,8 @@ Criação retorna `201` e `Location`; erros de validação, ausência e conflito
 retornam `400`, `404` e `409`.
 
 Para adicionar um convidado que deverá ser aprovado, use
-`POST /api/partidas/1/convidados` com `{"nome":"Carlos"}`. A API registra o
+`POST /api/partidas/1/convidados` com
+`{"nome":"Carlos","nota":3,"tipo":"GOLEIRO"}`. A API registra o
 jogador autenticado como quem convidou.
 O convidado entra com status `PENDENTE`. A listagem de participantes retorna
 `mensalistas` e `convidados` separadamente. O convidador deve ser mensalista ativo
@@ -86,3 +95,32 @@ da patota; o convidado não precisa de cadastro em `jogadores`.
 
 Para promover um participante, use `PATCH /api/patotas/1/mensalistas/2/cargo` com
 `{"cargo":"GERENTE"}` e as credenciais de um gerente da patota.
+
+Para montar os times, crie um time com `POST /api/partidas/1/times` e
+`{"nome":"Azul","cor":"Azul"}`. Atribua um participante confirmado com
+`PATCH /api/partidas/1/participantes/CONVIDADO/3/time` e `{"timeId":2}`.
+Use `MENSALISTA` no lugar de `CONVIDADO` para um jogador da partida.
+Registre os números com `PATCH /api/partidas/1/participantes/CONVIDADO/3/estatisticas`
+e `{"gols":2,"assistencias":1}`. Gols, assistências e time ficam no registro
+do participante, seja mensalista ou convidado; `GET /api/partidas/1/times`
+reúne os dois tipos em cada time. Essas escritas exigem gerente da patota.
+Para bancos existentes, aplique a migração em
+`docs/migracoes/2026-11-15-estatisticas-nos-participantes.sql` com a API parada.
+
+Jogadores e convidados têm `nota` de 1 a 5 e `tipo` `LINHA` ou `GOLEIRO`.
+Sem esses campos, o padrão é nota 3 e tipo `LINHA`. O próprio mensalista confirma
+ou recusa sua convocação. Após criar pelo menos dois times, o gerente pode chamar
+`POST /api/partidas/1/times/balancear`: a API distribui os participantes
+confirmados, exige exatamente um goleiro confirmado por time, mantém a diferença
+de tamanho dos times em até um jogador e usa as notas para equilibrar a soma.
+O balanceamento é recusado depois que houver gols ou assistências registrados.
+Em bancos existentes, aplique também
+`docs/migracoes/2026-11-15-nota-e-tipo-jogador.sql` antes de subir a API.
+
+A configuração `maximoJogadoresPorPartida` da patota aceita de 2 a 100, com
+padrão 12. Cada partida copia esse limite ao ser criada. Mensalistas e convidados
+pendentes podem aguardar, mas a confirmação do mensalista e a aprovação do
+convidado são recusadas quando a soma de confirmados atinge o máximo.
+Alterar a configuração da patota não muda partidas já criadas. Para atualizar
+um banco existente, aplique também
+`docs/migracoes/2026-11-15-limite-jogadores-partida.sql` com a API parada.
