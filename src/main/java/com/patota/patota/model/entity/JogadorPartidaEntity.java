@@ -1,7 +1,6 @@
 package com.patota.patota.model.entity;
 
-import com.patota.patota.model.enums.EStatusPresenca;
-import com.patota.patota.model.enums.ETipoParticipacaoPartida;
+import com.patota.patota.model.enums.EStatusParticipante;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,14 +19,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Mensalista convocado para uma partida, inicialmente pendente. */
 @Entity
 @Table(
-        name = "presencas_partida",
+        name = "jogador_partida",
         uniqueConstraints = @UniqueConstraint(name = "uk_partida_jogador", columnNames = {"partida_id", "jogador_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
-public class PresencaPartidaEntity {
+public class JogadorPartidaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,17 +43,9 @@ public class PresencaPartidaEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private EStatusPresenca status = EStatusPresenca.PENDENTE;
+    private EStatusParticipante status = EStatusParticipante.PENDENTE;
 
-    /**
-     * Mensalistas precisam ter um vínculo ativo com a patota da partida.
-     * Convidados participam somente desta partida e não geram esse vínculo.
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private ETipoParticipacaoPartida tipoParticipacao = ETipoParticipacaoPartida.MENSALISTA;
-
-    @OneToOne(mappedBy = "presencaPartida", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "jogadorPartida", fetch = FetchType.LAZY)
     private EscalacaoPartidaEntity escalacao;
 
     private LocalDateTime respondidaEm;

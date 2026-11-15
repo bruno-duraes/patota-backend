@@ -1,8 +1,8 @@
 package com.patota.patota.model.enums;
 
-public enum EStatusPresenca {
+public enum EStatusParticipante {
     PENDENTE,
-    CONFIRMADA,
-    RECUSADA,
+    CONFIRMADO,
+    RECUSADO,
     AUSENTE
 }

@@ -6,6 +6,7 @@ import com.patota.patota.model.entity.PatotaJogadorEntity;
 import com.patota.patota.model.dto.CriarPartidaDTO;
 import com.patota.patota.model.enums.EStatusPartida;
 import com.patota.patota.model.repository.PartidaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class PartidaService {
     private final PartidaRepository partidaRepository;
     private final PatotaService patotaService;
     private final PatotaJogadorService patotaJogadorService;
-    private final PresencaPartidaService presencaPartidaService;
+    private final JogadorPartidaService jogadorPartidaService;
 
     /**
      * Cria uma partida agendada para uma patota ativa. Times e escalações são
@@ -38,9 +39,19 @@ public class PartidaService {
         partida.setStatus(EStatusPartida.AGENDADA);
 
         PartidaEntity partidaCriada = partidaRepository.save(partida);
-        criarConvitesPendentes(partidaCriada);
+        criarRegistrosPendentes(partidaCriada);
 
         return partidaCriada;
+    }
+
+    public PartidaEntity buscar(Long id) {
+        return partidaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Partida não encontrada."));
+    }
+
+    public List<PartidaEntity> listarDaPatota(Long patotaId) {
+        patotaService.buscarPatota(patotaId);
+        return partidaRepository.findAllByPatota_IdOrderByDataHoraDesc(patotaId);
     }
 
     private void validarDadosCriacao(CriarPartidaDTO dto) {
@@ -65,10 +76,10 @@ public class PartidaService {
         return patota;
     }
 
-    private void criarConvitesPendentes(PartidaEntity partida) {
+    private void criarRegistrosPendentes(PartidaEntity partida) {
         List<PatotaJogadorEntity> mensalistas = patotaJogadorService
                 .buscarMensalistasAtivosDaPatota(partida.getPatota().getId());
 
-        presencaPartidaService.criarConvitesPendentes(partida, mensalistas);
+        jogadorPartidaService.criarRegistrosPendentes(partida, mensalistas);
     }
 }

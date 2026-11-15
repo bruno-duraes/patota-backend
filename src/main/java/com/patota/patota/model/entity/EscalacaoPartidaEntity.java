@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Participação efetiva de um jogador em um time de uma partida. */
+/** Escalação de um mensalista em um time da partida. Convidados serão tratados depois. */
 @Entity
 @Table(name = "escalacoes_partida")
 @Getter
@@ -32,12 +32,12 @@ public class EscalacaoPartidaEntity {
     private TimePartidaEntity timePartida;
 
     /**
-     * Uma presença só pode integrar uma escalação. A regra de negócio exige
-     * que ela esteja confirmada e pertença à mesma partida do time.
+     * Um jogador da partida só pode integrar uma escalação. A regra de negócio
+     * exige confirmação e vínculo com a mesma partida do time.
      */
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "presenca_partida_id", nullable = false, unique = true)
-    private PresencaPartidaEntity presencaPartida;
+    @JoinColumn(name = "jogador_partida_id", nullable = false, unique = true)
+    private JogadorPartidaEntity jogadorPartida;
 
     @Min(0)
     @Column(nullable = false)
