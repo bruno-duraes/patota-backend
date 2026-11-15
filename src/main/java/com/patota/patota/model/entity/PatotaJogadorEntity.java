@@ -1,7 +1,10 @@
 package com.patota.patota.model.entity;
 
+import com.patota.patota.model.enums.ECargoPatota;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,6 +43,10 @@ public class PatotaJogadorEntity {
 
     @Column(nullable = false)
     private boolean ativo = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ECargoPatota cargo = ECargoPatota.PARTICIPANTE;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime entrouEm;

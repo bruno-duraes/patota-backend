@@ -3,12 +3,12 @@ package com.patota.patota.model.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.patota.patota.model.dto.CriarPartidaDTO;
-import com.patota.patota.model.dto.SalvarJogadorDTO;
+import com.patota.patota.model.dto.CriarJogadorDTO;
 import com.patota.patota.model.dto.SalvarPatotaDTO;
 import com.patota.patota.model.entity.JogadorEntity;
 import com.patota.patota.model.entity.PatotaEntity;
-import com.patota.patota.model.enums.EStatusPresenca;
-import com.patota.patota.model.repository.PresencaPartidaRepository;
+import com.patota.patota.model.enums.EStatusParticipante;
+import com.patota.patota.model.repository.JogadorPartidaRepository;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,15 @@ class CadastroPartidaIntegrationTests {
     @Autowired private JogadorService jogadorService;
     @Autowired private PatotaJogadorService patotaJogadorService;
     @Autowired private PartidaService partidaService;
-    @Autowired private PresencaPartidaRepository presencaPartidaRepository;
+    @Autowired private JogadorPartidaRepository jogadorPartidaRepository;
 
     @Test
     void partidaConvocaSomenteMensalistasAtivos() {
         PatotaEntity patota = patotaService.criar(new SalvarPatotaDTO("Amigos", null, "Quadra A"));
-        JogadorEntity ativo = jogadorService.criar(new SalvarJogadorDTO("Ana", null, null));
-        JogadorEntity inativo = jogadorService.criar(new SalvarJogadorDTO("Bia", null, null));
+        JogadorEntity ativo = jogadorService.criar(
+                new CriarJogadorDTO("Ana", null, "ana@teste.com", "senha-segura"));
+        JogadorEntity inativo = jogadorService.criar(
+                new CriarJogadorDTO("Bia", null, "bia@teste.com", "senha-segura"));
         patotaJogadorService.adicionarMensalista(patota.getId(), ativo.getId());
         patotaJogadorService.adicionarMensalista(patota.getId(), inativo.getId());
         jogadorService.definirAtivo(inativo.getId(), false);
@@ -37,10 +39,10 @@ class CadastroPartidaIntegrationTests {
         var partida = partidaService.criar(new CriarPartidaDTO(
                 patota.getId(), LocalDateTime.now().plusDays(7), null));
 
-        var presencas = presencaPartidaRepository.findAll();
+        var presencas = jogadorPartidaRepository.findAll();
         assertEquals(1, presencas.size());
         assertEquals(partida.getId(), presencas.getFirst().getPartida().getId());
         assertEquals(ativo.getId(), presencas.getFirst().getJogador().getId());
-        assertEquals(EStatusPresenca.PENDENTE, presencas.getFirst().getStatus());
+        assertEquals(EStatusParticipante.PENDENTE, presencas.getFirst().getStatus());
     }
 }

@@ -30,8 +30,11 @@ public class JogadorEntity {
     @Column(length = 20)
     private String telefone;
 
-    @Column(length = 150)
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
+
+    @Column(nullable = false, length = 100)
+    private String senhaHash;
 
     @Column(nullable = false)
     private boolean ativo = true;

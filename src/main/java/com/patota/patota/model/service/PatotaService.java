@@ -1,9 +1,14 @@
 package com.patota.patota.model.service;
 
 import com.patota.patota.model.entity.PatotaEntity;
+import com.patota.patota.model.entity.PatotaJogadorEntity;
+import com.patota.patota.model.entity.JogadorEntity;
+import com.patota.patota.model.enums.ECargoPatota;
 import com.patota.patota.model.dto.SalvarPatotaDTO;
 import com.patota.patota.model.repository.PatotaRepository;
+import com.patota.patota.model.repository.PatotaJogadorRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PatotaService {
 
     private final PatotaRepository patotaRepository;
+    private final PatotaJogadorRepository patotaJogadorRepository;
+    private final JogadorService jogadorService;
 
     @Transactional
     public PatotaEntity criar(SalvarPatotaDTO dados) {
@@ -20,6 +27,21 @@ public class PatotaService {
         PatotaEntity patota = new PatotaEntity();
         preencher(patota, dados);
         return patotaRepository.save(patota);
+    }
+
+    @Transactional
+    public PatotaEntity criarGerenciada(SalvarPatotaDTO dados, Long gerenteId) {
+        JogadorEntity gerente = jogadorService.buscar(gerenteId);
+        if (!gerente.isAtivo()) {
+            throw new IllegalStateException("O gerente precisa estar ativo.");
+        }
+        PatotaEntity patota = criar(dados);
+        PatotaJogadorEntity vinculo = new PatotaJogadorEntity();
+        vinculo.setPatota(patota);
+        vinculo.setJogador(gerente);
+        vinculo.setCargo(ECargoPatota.GERENTE);
+        patotaJogadorRepository.save(vinculo);
+        return patota;
     }
 
     @Transactional
@@ -40,6 +62,10 @@ public class PatotaService {
     public PatotaEntity buscarPatota(Long id) {
         return patotaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Patota não encontrada."));
+    }
+
+    public List<PatotaEntity> listar() {
+        return patotaRepository.findAll();
     }
 
     private void validar(SalvarPatotaDTO dados) {
