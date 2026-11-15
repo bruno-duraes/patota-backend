@@ -72,22 +72,21 @@ Essas operações ainda não estão expostas por HTTP.
 
 ## Banco local
 
-O MySQL compartilhado de desenvolvimento não fica neste repositório. O compose está em
-`/projetos/docker-compose.mysql.yml` e sobe o container `mysql-dev` (MySQL 9), exposto
-em `localhost:3306`, com o banco originalmente chamado `futbola` e volume `mysql-dev-data`.
+O arquivo `compose.mysql.yml` deste repositório sobe o container `patota-mysql`
+(MySQL 9), exposto apenas em `127.0.0.1:3306`, com o banco `patota` e o volume
+persistente `patota-backend_mysql-data`.
 
 Para subir:
 
 ```bash
-docker compose -f /projetos/docker-compose.mysql.yml up -d
+docker compose -f compose.mysql.yml up -d
 ```
 
 `application.properties` aceita `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`; os padrões
-locais são `jdbc:mysql://localhost:3306/futbola`, `root` e `root`.
+locais são `jdbc:mysql://localhost:3306/patota`, `root` e `root`.
 
-O nome da aplicação passou a ser `patota`, mas o banco padrão conserva o nome anterior
-para preservar os dados existentes. Se o banco for renomeado no MySQL compartilhado,
-atualize `DB_URL`; este repositório não altera o compose externo nem migra dados.
+O banco padrão também se chama `patota`. O volume mantém os dados após o comando
+`docker compose -f compose.mysql.yml down`; não use `down -v` se quiser preservá-los.
 
 ## Verificação
 
