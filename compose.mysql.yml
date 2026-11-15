@@ -17,5 +17,25 @@ services:
       retries: 12
       start_period: 30s
 
+  api:
+    profiles: [api]
+    image: maven:3.9-eclipse-temurin-25
+    working_dir: /workspace
+    command: mvn spring-boot:run -q
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/patota
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      SERVER_ADDRESS: 0.0.0.0
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - .:/workspace
+      - maven-cache:/root/.m2
+    depends_on:
+      mysql:
+        condition: service_healthy
+
 volumes:
   mysql-data:
+  maven-cache:
