@@ -3,6 +3,7 @@ package com.patota.patota.model.service;
 import com.patota.patota.model.dto.CriarJogadorDTO;
 import com.patota.patota.model.dto.SalvarJogadorDTO;
 import com.patota.patota.model.entity.JogadorEntity;
+import com.patota.patota.model.enums.ETipoJogador;
 import com.patota.patota.model.repository.JogadorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -32,6 +33,8 @@ public class JogadorService {
         jogador.setTelefone(dados.telefone());
         jogador.setEmail(normalizarEmail(dados.email()));
         jogador.setSenhaHash(passwordEncoder.encode(dados.senha()));
+        jogador.setNota(validarNota(dados.nota()));
+        jogador.setTipo(dados.tipo() == null ? ETipoJogador.LINHA : dados.tipo());
         return jogadorRepository.save(jogador);
     }
 
@@ -77,6 +80,20 @@ public class JogadorService {
         jogador.setNome(dados.nome().trim());
         jogador.setTelefone(dados.telefone());
         jogador.setEmail(normalizarEmail(dados.email()));
+        if (dados.nota() != null) {
+            jogador.setNota(validarNota(dados.nota()));
+        }
+        if (dados.tipo() != null) {
+            jogador.setTipo(dados.tipo());
+        }
+    }
+
+    private int validarNota(Integer nota) {
+        int valor = nota == null ? 3 : nota;
+        if (valor < 1 || valor > 5) {
+            throw new IllegalArgumentException("A nota deve estar entre 1 e 5.");
+        }
+        return valor;
     }
 
     private String normalizarEmail(String email) {

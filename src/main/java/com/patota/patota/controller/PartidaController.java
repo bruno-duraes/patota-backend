@@ -6,6 +6,8 @@ import com.patota.patota.model.dto.ConvidarJogadorDTO;
 import com.patota.patota.model.dto.ParticipantesPartidaRespostaDTO;
 import com.patota.patota.model.dto.PartidaRespostaDTO;
 import com.patota.patota.model.dto.PartidaConvidadoRespostaDTO;
+import com.patota.patota.model.dto.JogadorPartidaRespostaDTO;
+import com.patota.patota.model.enums.EStatusParticipante;
 import com.patota.patota.model.service.ParticipantePartidaService;
 import com.patota.patota.model.service.JogadorService;
 import com.patota.patota.model.service.PartidaService;
@@ -64,6 +66,20 @@ public class PartidaController {
     @GetMapping("/{id}/participantes")
     public ParticipantesPartidaRespostaDTO listarParticipantes(@PathVariable Long id) {
         return participantePartidaService.listar(id);
+    }
+
+    @PatchMapping("/{id}/mensalistas/{participanteId}/confirmar")
+    public JogadorPartidaRespostaDTO confirmarMensalista(
+            @PathVariable Long id, @PathVariable Long participanteId, Authentication autenticacao) {
+        return participantePartidaService.responderMensalista(id, participanteId,
+                jogadorService.buscarAutenticado(autenticacao).getId(), EStatusParticipante.CONFIRMADO);
+    }
+
+    @PatchMapping("/{id}/mensalistas/{participanteId}/recusar")
+    public JogadorPartidaRespostaDTO recusarMensalista(
+            @PathVariable Long id, @PathVariable Long participanteId, Authentication autenticacao) {
+        return participantePartidaService.responderMensalista(id, participanteId,
+                jogadorService.buscarAutenticado(autenticacao).getId(), EStatusParticipante.RECUSADO);
     }
 
     @GetMapping("/{id}/convidados/{convidadoId}")

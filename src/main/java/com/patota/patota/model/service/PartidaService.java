@@ -35,6 +35,7 @@ public class PartidaService {
         partida.setPatota(patota);
         partida.setDataHora(dto.dataHora());
         partida.setLocal(patota.getLocal());
+        partida.setMaximoJogadores(patota.getMaximoJogadoresPorPartida());
         partida.setObservacoes(dto.observacoes());
         partida.setStatus(EStatusPartida.AGENDADA);
 

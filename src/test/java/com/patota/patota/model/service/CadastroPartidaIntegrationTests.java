@@ -27,11 +27,11 @@ class CadastroPartidaIntegrationTests {
 
     @Test
     void partidaConvocaSomenteMensalistasAtivos() {
-        PatotaEntity patota = patotaService.criar(new SalvarPatotaDTO("Amigos", null, "Quadra A"));
+        PatotaEntity patota = patotaService.criar(new SalvarPatotaDTO("Amigos", null, "Quadra A", null));
         JogadorEntity ativo = jogadorService.criar(
-                new CriarJogadorDTO("Ana", null, "ana@teste.com", "senha-segura"));
+                new CriarJogadorDTO("Ana", null, "ana@teste.com", "senha-segura", null, null));
         JogadorEntity inativo = jogadorService.criar(
-                new CriarJogadorDTO("Bia", null, "bia@teste.com", "senha-segura"));
+                new CriarJogadorDTO("Bia", null, "bia@teste.com", "senha-segura", null, null));
         patotaJogadorService.adicionarMensalista(patota.getId(), ativo.getId());
         patotaJogadorService.adicionarMensalista(patota.getId(), inativo.getId());
         jogadorService.definirAtivo(inativo.getId(), false);

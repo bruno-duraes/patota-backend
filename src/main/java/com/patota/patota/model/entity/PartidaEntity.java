@@ -14,6 +14,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,6 +41,12 @@ public class PartidaEntity {
     /** Endereço copiado da patota no momento de criação da partida. */
     @Column(nullable = false, length = 255)
     private String local;
+
+    /** Limite copiado da patota na criação para preservar a configuração da partida. */
+    @Min(2)
+    @Max(100)
+    @Column(nullable = false)
+    private int maximoJogadores;
 
     @Column(length = 1000)
     private String observacoes;

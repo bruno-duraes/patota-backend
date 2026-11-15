@@ -8,12 +8,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,7 +42,4 @@ public class TimePartidaEntity {
     @Min(0)
     @Column(nullable = false)
     private int placar = 0;
-
-    @OneToMany(mappedBy = "timePartida")
-    private List<EscalacaoPartidaEntity> escalacoes = new ArrayList<>();
 }

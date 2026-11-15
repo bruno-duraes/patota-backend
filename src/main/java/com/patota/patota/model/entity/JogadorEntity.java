@@ -1,7 +1,10 @@
 package com.patota.patota.model.entity;
 
+import com.patota.patota.model.enums.ETipoJogador;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,6 +12,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,6 +40,15 @@ public class JogadorEntity {
 
     @Column(nullable = false, length = 100)
     private String senhaHash;
+
+    @Min(1)
+    @Max(5)
+    @Column(nullable = false)
+    private int nota = 3;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ETipoJogador tipo = ETipoJogador.LINHA;
 
     @Column(nullable = false)
     private boolean ativo = true;

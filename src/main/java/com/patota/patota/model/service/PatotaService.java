@@ -79,5 +79,11 @@ public class PatotaService {
         patota.setNome(dados.nome().trim());
         patota.setDescricao(dados.descricao());
         patota.setLocal(dados.local().trim());
+        if (dados.maximoJogadoresPorPartida() != null) {
+            if (dados.maximoJogadoresPorPartida() < 2 || dados.maximoJogadoresPorPartida() > 100) {
+                throw new IllegalArgumentException("O máximo de jogadores deve estar entre 2 e 100.");
+            }
+            patota.setMaximoJogadoresPorPartida(dados.maximoJogadoresPorPartida());
+        }
     }
 }

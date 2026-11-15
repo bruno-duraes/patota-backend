@@ -25,22 +25,29 @@ PatotaEntity 1 ── N PatotaJogadorEntity N ── 1 JogadorEntity
 PatotaEntity 1 ── N PartidaEntity
 PartidaEntity 1 ── N JogadorPartidaEntity N ── 1 JogadorEntity
 PartidaEntity 1 ── N PartidaConvidadoEntity N ── 1 JogadorEntity (convidador)
-PartidaEntity 1 ── N TimePartidaEntity 1 ── N EscalacaoPartidaEntity
-JogadorPartidaEntity 1 ── 0..1 EscalacaoPartidaEntity
+PartidaEntity 1 ── N TimePartidaEntity
+TimePartidaEntity 1 ── N JogadorPartidaEntity
+TimePartidaEntity 1 ── N PartidaConvidadoEntity
 ```
 
 - `PatotaJogadorEntity` representa o vínculo de um mensalista com uma patota.
   O cargo do vínculo é `PARTICIPANTE` por padrão ou `GERENTE`. O jogador que cria
   uma patota autenticado com email e senha torna-se o primeiro gerente.
 - `JogadorPartidaEntity` representa um mensalista convocado para a partida. Nasce
-  com status `PENDENTE` e referencia um jogador cadastrado.
+  com status `PENDENTE` e referencia um jogador cadastrado, do qual lê nota e tipo.
 - `PartidaConvidadoEntity` representa um convidado daquela partida, com nome e
   referência ao jogador que o convidou. Não cria `JogadorEntity` nem vínculo com
   a patota. Nasce com status `PENDENTE` e aguarda aprovação de um administrador.
+  Guarda nota e tipo próprios.
+- Nota varia de 1 a 5; tipo é `LINHA` ou `GOLEIRO`. O padrão é nota 3 e `LINHA`.
+- A patota configura `maximoJogadoresPorPartida` (padrão 12, de 2 a 100).
+  Cada partida copia o valor na criação. Apenas os confirmados contam no limite,
+  somando mensalistas e convidados; respostas pendentes podem esperar uma vaga.
 - Os status de participante são `PENDENTE`, `CONFIRMADO`, `RECUSADO` e `AUSENTE`.
 - `TimePartidaEntity` guarda nome, cor e placar de um time criado para uma partida.
-- `EscalacaoPartidaEntity` ainda associa somente `JogadorPartidaEntity` a um time;
-  a escalação de convidados será definida em uma etapa posterior.
+- Mensalistas e convidados implementam `ParticipanteDaPartida` e guardam seus
+  próprios gols, assistências e vínculo opcional com um time. A tabela
+  `escalacoes_partida` foi removida.
 - Vitória, derrota e empate devem ser derivados do placar do time, sem serem gravados
   em cada jogador.
 
@@ -61,10 +68,7 @@ da partida e de todos os jogadores da partida.
 
 ## Regras pendentes de implementar
 
-- Confirmação/recusa dos mensalistas.
-- Criação de times e escalações, inclusive para convidados: somente participantes
-  confirmados, pertencentes à mesma partida, podem ser escalados uma única vez.
-- Atualização de placar e estatísticas; futuramente, avaliar uma entidade de eventos da
+- Atualização de placar; futuramente, avaliar uma entidade de eventos da
   partida para registrar cada gol e assistência individualmente.
 - Verificação de email, recuperação de senha e HTTPS antes de expor a API fora do
   ambiente local.
@@ -88,6 +92,18 @@ Os endpoints administrativos usam `@RequerGerente`, apoiada por
 `AutorizacaoGerente`, para conferir o cargo `GERENTE` no vínculo ativo do jogador
 autenticado com a patota. A anotação recebe uma expressão SpEL que resolve o ID
 da patota a partir do parâmetro do endpoint, do corpo ou da partida.
+`MontagemTimesService` cria e lista times, atribui mensalistas e convidados
+confirmados a um time da mesma partida, remove a atribuição e registra gols e
+assistências em cada participante. Os endpoints de escrita exigem gerente da
+patota; a consulta de times usa `GET /api/partidas/{id}/times`.
+O próprio mensalista responde à convocação com `PATCH` em
+`/api/partidas/{id}/mensalistas/{participanteId}/confirmar` ou `/recusar`.
+`POST /api/partidas/{id}/times/balancear` exige um goleiro confirmado para cada
+time, distribui jogadores de linha por quantidade e soma de notas e não altera
+times após o registro de estatísticas.
+Confirmação do mensalista e aprovação de convidado bloqueiam a linha da partida
+antes de contar os confirmados, para impedir que duas respostas simultâneas
+ultrapassem o limite.
 
 ## Banco local
 
@@ -120,6 +136,12 @@ O cargo do vínculo foi adicionado pela migração
 O cadastro com senha exige a migração
 `docs/migracoes/2026-11-15-credenciais-jogador.sql`. Se já houver jogadores,
 prepare credenciais individuais antes de exigir os novos campos obrigatórios.
+Para migrar as escalações antigas sem perder time, gols e assistências, aplique
+`docs/migracoes/2026-11-15-estatisticas-nos-participantes.sql` com a API parada.
+Em seguida, aplique `docs/migracoes/2026-11-15-nota-e-tipo-jogador.sql` para
+adicionar nota e tipo aos cadastros existentes.
+Por fim, aplique `docs/migracoes/2026-11-15-limite-jogadores-partida.sql` para
+configurar os limites nas patotas e copiar o valor para as partidas existentes.
 
 ## Verificação
 

@@ -9,6 +9,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +35,11 @@ public class PatotaEntity {
     /** Endereço da quadra usada normalmente pela patota. */
     @Column(nullable = false, length = 255)
     private String local;
+
+    @Min(2)
+    @Max(100)
+    @Column(nullable = false)
+    private int maximoJogadoresPorPartida = 12;
 
     @Column(nullable = false)
     private boolean ativa = true;
